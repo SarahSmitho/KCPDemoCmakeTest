@@ -1,0 +1,105 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"jsonFile" : "directory-.-Debug-d0094a50bb2071803777.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.21"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"name" : "Debug",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "KCPDemoCmakeTest",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "KCPClient::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-KCPClient-Debug-a50d39af591e0703cb0a.json",
+					"name" : "KCPClient",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "KCPClient1::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-KCPClient1-Debug-ea656d4507161ff362e3.json",
+					"name" : "KCPClient1",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "KCPDemoCmakeTest::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-KCPDemoCmakeTest-Debug-98ba11d7435cafebd0a9.json",
+					"name" : "KCPDemoCmakeTest",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "KCPServer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-KCPServer-Debug-c5e4a22acdf8c2cf089f.json",
+					"name" : "KCPServer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "KCPServer1::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-KCPServer1-Debug-569910561e6d3d3ec5e8.json",
+					"name" : "KCPServer1",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ikcp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ikcp-Debug-795e1799acd35f7f0949.json",
+					"name" : "ikcp",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "D:/ProgramData/Clion/Test/KCPDemoCmakeTest/cmake-build-debug",
+		"source" : "D:/ProgramData/Clion/Test/KCPDemoCmakeTest"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

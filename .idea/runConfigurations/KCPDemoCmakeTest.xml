@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="KCPDemoCmakeTest" type="CMakeRunConfiguration" factoryName="Application" singleton="false" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="KCPDemoCmakeTest" TARGET_NAME="KCPDemoCmakeTest" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="KCPDemoCmakeTest" RUN_TARGET_NAME="KCPDemoCmakeTest">
+    <method v="2">
+      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
