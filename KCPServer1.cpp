@@ -12,7 +12,7 @@
 #include "ikcp.h"
 
 #pragma comment(lib, "WS2_32.lib")
-#define BUF_SIZE    128
+#define BUF_SIZE    6000
 
 SOCKET socketSrv;
 SOCKADDR_IN addrSrv;
@@ -24,6 +24,7 @@ char blankbuf[BUF_SIZE];
 
 int udp_output(const char *buf, int len, ikcpcb *kcp, void *user) {
     int res = sendto(socketSrv, buf, len, 0, (SOCKADDR *) user, sizeof(addrClient));
+    printf("·µ»Øack°ü ´óĞ¡Îª %d\n",res);
     return 0;
 }
 
@@ -33,13 +34,13 @@ int main(void) {
     SOCKET s;
     int nRet;
 
-    // åˆå§‹åŒ–å¥—æ¥å­—åŠ¨æ€åº“
+    // ³õÊ¼»¯Ì×½Ó×Ö¶¯Ì¬¿â
     if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
         printf("WSAStartup failed !\n");
         return 1;
     }
 
-    // åˆ›å»ºå¥—æ¥å­—
+    // ´´½¨Ì×½Ó×Ö
     s = socket(AF_INET, SOCK_DGRAM, 0);
     if (s == INVALID_SOCKET) {
         printf("socket() failed ,Error Code:%d\n", WSAGetLastError());
@@ -50,7 +51,7 @@ int main(void) {
     socketSrv = socket(AF_INET, SOCK_DGRAM, 0);
     int len = sizeof(SOCKADDR);
 
-    //è®¾ç½®ä¸ºéé˜»å¡æ¨¡å¼
+    //ÉèÖÃÎª·Ç×èÈûÄ£Ê½
     int imode = 1;
     nRet = ioctlsocket(socketSrv, FIONBIO, (u_long *) &imode);
     if (nRet == SOCKET_ERROR) {
@@ -60,13 +61,13 @@ int main(void) {
         return -1;
     }
 
-    // è®¾ç½®æœåŠ¡å™¨åœ°å€
+    // ÉèÖÃ·şÎñÆ÷µØÖ·
     ZeroMemory(buf, BUF_SIZE);
     addrSrv.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
     addrSrv.sin_family = AF_INET;
     addrSrv.sin_port = htons(5000);
 
-    // ç»‘å®šå¥—æ¥å­—
+    // °ó¶¨Ì×½Ó×Ö
     nRet = bind(socketSrv, (SOCKADDR *) &addrSrv, sizeof(SOCKADDR));
     if (SOCKET_ERROR == nRet) {
         printf("bind failed !\n");
@@ -75,36 +76,39 @@ int main(void) {
         return -1;
     }
 
-    // ä»å®¢æˆ·ç«¯æ¥æ”¶æ•°æ®
+    // ´Ó¿Í»§¶Ë½ÓÊÕÊı¾İ
     printf(" server started..\n");
     ikcpcb *kcp = ikcp_create(1, (void *) &addrClient);
     kcp->output = udp_output;
-    ikcp_nodelay(kcp, 1, 2, 2, 1);
-    ikcp_wndsize(kcp, 128, 128);
+    ikcp_nodelay(kcp, 1, 10, 2, 1);
+    ikcp_wndsize(kcp, 512, 512);
+    kcp->rx_minrto = 10;
+
 
     int count=0;
     while (1) {
         //Sleep(100);
         ikcp_update(kcp, clock());
-        // æ‰“å°æ¥è‡ªå®¢æˆ·ç«¯å‘é€æ¥çš„æ•°æ®
+        // ´òÓ¡À´×Ô¿Í»§¶Ë·¢ËÍÀ´µÄÊı¾İ
         while (1) {
             nRet = recvfrom(socketSrv, buf, BUF_SIZE, 0, (SOCKADDR *) &addrClient, &len);
-/*            if (nRet < 0){
+            if (nRet < 0){
                 int y = WSAGetLastError();
-                //printf(" WSAGetLastError();   %d\n", y);
-                break;
-            }*/
+                printf(" WSAGetLastError();   %d\n", y);
+            }
+            printf(" udpÊÕµ½Êı¾İ  %s\n", buf+24);
             ikcp_input(kcp, buf, nRet);
             ikcp_update(kcp, clock());
+            ikcp_flush(kcp);
 
             hr = ikcp_recv(kcp, kcpbuf, BUF_SIZE);
             if (hr > 0) {
                 count = count + 1;
             }
             printf("I recv :%s,count is  %d  \n", kcpbuf, count);
-            // æ²¡æœ‰æ”¶åˆ°åŒ…å°±é€€å‡º
+            // Ã»ÓĞÊÕµ½°ü¾ÍÍË³ö
             //if (hr < 0) break;
-            // å¦‚æœæ”¶åˆ°åŒ…å°±å›å°„ä¸€ä¸ªç©ºåŒ…ï¼Œé‡Œé¢åº”è¯¥æ˜¯æœ‰KCPé‡Œå¤„ç†å¥½çš„åŒ…åºå·ä»¥åŠAckä¿¡æ¯
+            // Èç¹ûÊÕµ½°ü¾Í»ØÉäÒ»¸ö¿Õ°ü£¬ÀïÃæÓ¦¸ÃÊÇÓĞKCPÀï´¦ÀíºÃµÄ°üĞòºÅÒÔ¼°AckĞÅÏ¢
             ikcp_send(kcp, blankbuf, strlen(blankbuf) + 1);
             ikcp_update(kcp, clock());
             ikcp_flush(kcp);
@@ -116,9 +120,9 @@ int main(void) {
                 count = count + 1;
             }
             printf("I recv :%s,count is  %d  \n", kcpbuf, count);
-            // æ²¡æœ‰æ”¶åˆ°åŒ…å°±é€€å‡º
+            // Ã»ÓĞÊÕµ½°ü¾ÍÍË³ö
             if (hr < 0) break;
-            // å¦‚æœæ”¶åˆ°åŒ…å°±å›å°„ä¸€ä¸ªç©ºåŒ…ï¼Œé‡Œé¢åº”è¯¥æ˜¯æœ‰KCPé‡Œå¤„ç†å¥½çš„åŒ…åºå·ä»¥åŠAckä¿¡æ¯
+            // Èç¹ûÊÕµ½°ü¾Í»ØÉäÒ»¸ö¿Õ°ü£¬ÀïÃæÓ¦¸ÃÊÇÓĞKCPÀï´¦ÀíºÃµÄ°üĞòºÅÒÔ¼°AckĞÅÏ¢
             ikcp_send(kcp, blankbuf, strlen(blankbuf) + 1);
         }
     }

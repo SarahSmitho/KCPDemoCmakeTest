@@ -11,19 +11,23 @@
 using namespace std;
 
 #pragma comment(lib, "WS2_32.lib")
-#define BUF_SIZE    128
+#define BUF_SIZE    6000
 
 SOCKET sockClient;// = socket(AF_INET,SOCK_DGRAM,0);
-SOCKADDR_IN servAddr;       // æœåŠ¡å™¨å¥—æ¥å­—åœ°å€
+SOCKADDR_IN servAddr;       // ·şÎñÆ÷Ì×½Ó×ÖµØÖ·
 int nServAddLen = sizeof(servAddr);
 int count1 = 0;
+int datalength=0;
 
 int udp_output(const char *buf, int len, ikcpcb *kcp, void *user) {
     int res = sendto(sockClient, buf, len, 0, (sockaddr *) user, nServAddLen);
 
+
     if (res > 0) {
         count1 = count1 + 1;
-        printf("sent msg count: %d\n", count1);
+        datalength=datalength+res;
+        printf("sent msg count1: %d,datalength is %d KB\n", count1,datalength/1024);
+
     }
     return 0;
 }
@@ -32,13 +36,13 @@ int main(void) {
     WSADATA wsd;
     SOCKET s;
 
-    // åˆå§‹åŒ–å¥—æ¥å­—åŠ¨æ€åº“
+    // ³õÊ¼»¯Ì×½Ó×Ö¶¯Ì¬¿â
     if (WSAStartup(MAKEWORD(2, 2), &wsd) != 0) {
         printf("WSAStartup failed !\n");
         return 1;
     }
 
-    // åˆ›å»ºå¥—æ¥å­—
+    // ´´½¨Ì×½Ó×Ö
     s = socket(AF_INET, SOCK_DGRAM, 0);
     if (s == INVALID_SOCKET) {
         printf("socket() failed, Error Code:%d\n", WSAGetLastError());
@@ -46,15 +50,24 @@ int main(void) {
         return 1;
     }
 
-    char buf[BUF_SIZE];  // æ¥å—æ•°æ®
-    char recvbuf[BUF_SIZE];  // æ¥å—æ•°æ®
+    char buf[BUF_SIZE];  // ½ÓÊÜÊı¾İ
+    char recvbuf[BUF_SIZE];  // ½ÓÊÜÊı¾İ
     int nRet;
     ZeroMemory(buf, BUF_SIZE);
     ZeroMemory(recvbuf, BUF_SIZE);
     sockClient = socket(AF_INET, SOCK_DGRAM, 0);
     strcpy(buf, "Hello world!");
 
-    // è®¾ç½®æœåŠ¡å™¨åœ°å€
+/*    int i;
+    //buf 1KB
+    printf("buf 1KB  start\n");
+    for(i=0;i<=400;i++){
+        buf[i]='A';
+        printf("buf 1KB %d \n",i);
+    }
+    printf("buf 1KB \n");*/
+
+    // ÉèÖÃ·şÎñÆ÷µØÖ·
     servAddr.sin_family = AF_INET;
     servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
     servAddr.sin_port = htons(5000);
@@ -69,8 +82,10 @@ int main(void) {
 
     ikcpcb *kcp = ikcp_create(1, (void *) &servAddr);
     kcp->output = udp_output;
-    ikcp_nodelay(kcp, 1, 20, 2, 1);
-    ikcp_wndsize(kcp, 128, 128);
+    ikcp_nodelay(kcp, 1, 10, 2, 1);
+    ikcp_wndsize(kcp, 512, 512);
+    kcp->rx_minrto = 10;
+
 
     long start, current;
 
@@ -78,19 +93,38 @@ int main(void) {
     long slap = clock();
     int index = 1;
     while (1) {
-        //Sleep(100);
+        Sleep(100);
         //printf("OK\n");
         current = clock();
-        //ikcp_update(kcp, clock());
+        //
+        ikcp_update(kcp, clock());
 
         int res;
 
-        if (current - start < 1000) {
-            //for (; current >= slap; slap += 1) {
+        //if (current - start < 1000) {
+            for (; current >= slap; slap += 1000) {
                 //char        temp[BUF_SIZE];
                 //sprintf(temp,"%s_%d",buf,index);
                 printf("ikcp send: %d  ", index);
-                ikcp_send(kcp, buf, strlen(buf) + 1);
+                char temp[1024] = {0};//Óë·şÎñÆ÷³õ´ÎÍ¨ĞÅ
+                strcpy(temp,"This is string.h library function");
+                char longtemp[6000]={0};
+                memset(temp,97,990);
+                printf("temp length %d\n",strlen(temp));
+                int writecount=sprintf(longtemp,"%s_%d",temp,index);
+                printf("writecount=%d\n",writecount);
+                printf("puts(temp)Êä³öµÄ×Ö·û"); puts(longtemp);
+                printf("sprintfºótempÊı×éµÄ´óĞ¡ %d\n",strlen(longtemp));
+                printf("Client send buf:%s\n", longtemp);
+
+                int waitpacket=ikcp_waitsnd(kcp);
+                printf("waitpacket ÊıÁ¿ %d\n",waitpacket);
+
+                if(waitpacket<100){
+                    ikcp_send(kcp, longtemp, strlen(longtemp)+1);
+                    printf("sprintfºótempÊı×éµÄ´óĞ¡ %d\n",strlen(longtemp));
+                }
+
                 ikcp_update(kcp, clock());
                 ikcp_flush(kcp);
                 index++;
@@ -99,12 +133,19 @@ int main(void) {
                 //if(nRet < 0) break;
                 ikcp_input(kcp, recvbuf, nRet);
                 ikcp_update(kcp, clock());
+                ikcp_flush(kcp);
+
+                printf("RTT ÖµÎª %d\n",kcp->rx_rttval);
+
+
 
                 char kcpbuf[BUF_SIZE];
                 ikcp_recv(kcp, kcpbuf, BUF_SIZE);
                 //if(hr < 0) break;
-                // æ‰“å°æ¥è‡ªæœåŠ¡ç«¯å‘é€æ¥çš„æ•°æ®
+                // ´òÓ¡À´×Ô·şÎñ¶Ë·¢ËÍÀ´µÄÊı¾İ
                 printf("Recv From Server:%s\n", kcpbuf);
+                ikcp_update(kcp, clock());
+                ikcp_flush(kcp);
             //}
         }
 
@@ -117,7 +158,7 @@ int main(void) {
             char kcpbuf[BUF_SIZE];
             int hr = ikcp_recv(kcp, kcpbuf, BUF_SIZE);
             if(hr < 0) break;
-            // æ‰“å°æ¥è‡ªæœåŠ¡ç«¯å‘é€æ¥çš„æ•°æ®
+            // ´òÓ¡À´×Ô·şÎñ¶Ë·¢ËÍÀ´µÄÊı¾İ
             printf("Recv From Server:%s\n",kcpbuf);
         }*/
     }

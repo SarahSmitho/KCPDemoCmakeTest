@@ -10,4 +10,5 @@ add_executable(KCPServer  KCPServer.cpp ikcp.h ikcp.cpp)
 add_executable(KCPClient  KCPClient.cpp ikcp.h ikcp.cpp)
 add_executable(KCPServer1  KCPServer1.cpp ikcp.h ikcp.cpp)
 add_executable(KCPClient1  KCPClient1.cpp ikcp.h ikcp.cpp)
-add_executable(ikcp  ikcp.h ikcp.cpp)
+add_executable(Test  test.cpp  )
+#一个字离谱 只需要一个CPP

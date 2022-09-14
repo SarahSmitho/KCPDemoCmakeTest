@@ -113,39 +113,6 @@ build KCPDemoCmakeTest.exe: CXX_EXECUTABLE_LINKER__KCPDemoCmakeTest_Debug CMakeF
   TARGET_PDB = KCPDemoCmakeTest.exe.dbg
 
 # =============================================================================
-# Object build statements for EXECUTABLE target ikcp
-
-
-#############################################
-# Order-only phony target for ikcp
-
-build cmake_object_order_depends_target_ikcp: phony || CMakeFiles/ikcp.dir
-
-build CMakeFiles/ikcp.dir/ikcp.cpp.obj: CXX_COMPILER__ikcp_Debug D$:/ProgramData/Clion/Test/KCPDemoCmakeTest/ikcp.cpp || cmake_object_order_depends_target_ikcp
-  DEP_FILE = CMakeFiles\ikcp.dir\ikcp.cpp.obj.d
-  FLAGS = -g -std=gnu++14
-  OBJECT_DIR = CMakeFiles\ikcp.dir
-  OBJECT_FILE_DIR = CMakeFiles\ikcp.dir
-
-
-# =============================================================================
-# Link build statements for EXECUTABLE target ikcp
-
-
-#############################################
-# Link the executable ikcp.exe
-
-build ikcp.exe: CXX_EXECUTABLE_LINKER__ikcp_Debug CMakeFiles/ikcp.dir/ikcp.cpp.obj
-  FLAGS = -g
-  LINK_LIBRARIES = -lws2_32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
-  OBJECT_DIR = CMakeFiles\ikcp.dir
-  POST_BUILD = cd .
-  PRE_LINK = cd .
-  TARGET_FILE = ikcp.exe
-  TARGET_IMPLIB = libikcp.dll.a
-  TARGET_PDB = ikcp.exe.dbg
-
-# =============================================================================
 # Object build statements for EXECUTABLE target KCPServer
 
 
@@ -236,6 +203,39 @@ build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
 build rebuild_cache: phony CMakeFiles/rebuild_cache.util
 
 # =============================================================================
+# Object build statements for EXECUTABLE target Test
+
+
+#############################################
+# Order-only phony target for Test
+
+build cmake_object_order_depends_target_Test: phony || CMakeFiles/Test.dir
+
+build CMakeFiles/Test.dir/test.cpp.obj: CXX_COMPILER__Test_Debug D$:/ProgramData/Clion/Test/KCPDemoCmakeTest/test.cpp || cmake_object_order_depends_target_Test
+  DEP_FILE = CMakeFiles\Test.dir\test.cpp.obj.d
+  FLAGS = -g -std=gnu++14
+  OBJECT_DIR = CMakeFiles\Test.dir
+  OBJECT_FILE_DIR = CMakeFiles\Test.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target Test
+
+
+#############################################
+# Link the executable Test.exe
+
+build Test.exe: CXX_EXECUTABLE_LINKER__Test_Debug CMakeFiles/Test.dir/test.cpp.obj
+  FLAGS = -g
+  LINK_LIBRARIES = -lws2_32  -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
+  OBJECT_DIR = CMakeFiles\Test.dir
+  POST_BUILD = cd .
+  PRE_LINK = cd .
+  TARGET_FILE = Test.exe
+  TARGET_IMPLIB = libTest.dll.a
+  TARGET_PDB = Test.exe.dbg
+
+# =============================================================================
 # Object build statements for EXECUTABLE target KCPServer1
 
 
@@ -298,7 +298,7 @@ build KCPServer: phony KCPServer.exe
 
 build KCPServer1: phony KCPServer1.exe
 
-build ikcp: phony ikcp.exe
+build Test: phony Test.exe
 
 # =============================================================================
 # Folder targets.
@@ -308,7 +308,7 @@ build ikcp: phony ikcp.exe
 #############################################
 # Folder: D:/ProgramData/Clion/Test/KCPDemoCmakeTest/cmake-build-debug
 
-build all: phony KCPClient1.exe KCPDemoCmakeTest.exe ikcp.exe KCPServer.exe KCPClient.exe KCPServer1.exe
+build all: phony KCPClient1.exe KCPDemoCmakeTest.exe KCPServer.exe KCPClient.exe Test.exe KCPServer1.exe
 
 # =============================================================================
 # Built-in targets
