@@ -123,15 +123,22 @@ int main(void)
 using namespace std;
 
 #pragma comment(lib,"WS2_32.lib")
-#define BUF_SIZE    128
+#define BUF_SIZE    1024*500
 
 SOCKET      sockClient;// = socket(AF_INET,SOCK_DGRAM,0);
 SOCKADDR_IN servAddr;       // 服务器套接字地址
 int nServAddLen = sizeof(servAddr);
+int count1 = 0;
+int datalength=0;
 
 int udp_output(const char *buf, int len, ikcpcb *kcp, void *user){
     int res = sendto(sockClient,buf,len,0,(sockaddr *)user, nServAddLen);
-    //printf("sent msg len: %d\n", res);
+    if (res > 0) {
+        count1 = count1 + 1;
+        datalength=datalength+res;
+        printf("sent msg count1: %d,datalength is %d KB\n", count1,datalength/1024);
+
+    }
     return 0;
 }
 
@@ -166,6 +173,7 @@ int main(void)
 
     // 设置服务器地址
     servAddr.sin_family = AF_INET;
+    //172.16.31.55
     servAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
     servAddr.sin_port = htons(5000);
     int imode=1;
@@ -180,8 +188,8 @@ int main(void)
 
     ikcpcb *kcp = ikcp_create(1, (void*)&servAddr);
     kcp->output = udp_output;
-    ikcp_nodelay(kcp, 1, 10, 2, 1);
-    ikcp_wndsize(kcp, 1024, 1024);
+    ikcp_nodelay(kcp, 1, 5, 2, 1);
+    ikcp_wndsize(kcp, 2048, 2048);
     kcp->rx_minrto = 10;
 
     long current;
@@ -199,17 +207,22 @@ int main(void)
 
             printf("currenttime 1 is %d\n",current);
 
+            memset(buf,97,1024*10-20);
             char        temp[BUF_SIZE];
             sprintf(temp,"%s_%d",buf,index);
             printf("ikcp send: %d  ", index);
 
             int waitpacket=ikcp_waitsnd(kcp);
             printf("waitpacket 数量 %d\n",waitpacket);
-            if(waitpacket<100){
+            if(waitpacket<1024){
                 ikcp_send(kcp, temp, strlen(temp) + 1);
+                ikcp_update(kcp, clock());
+                ikcp_flush(kcp);
                 index++;
-                printf("RTT 值为 %d\n",kcp->rx_rttval);
             }
+            ikcp_update(kcp, clock());
+            ikcp_flush(kcp);
+            printf("RTT 值为 %d\n",kcp->rx_srtt);
             printf("currenttime 2 is %d\n",current);
             printf("slap  is %d\n",slap);
         }
@@ -225,10 +238,17 @@ int main(void)
             int hr = ikcp_recv(kcp, kcpbuf, BUF_SIZE);
             printf("ikcp_recv hr is %d\n",hr);
 
+            int seg=kcp->snd_una;
+            printf("第一个未收到Ack包的序号 %d\n",seg);
+
             if(hr < 0) break;
             // 打印来自服务端发送来的数据
             printf("Recv From Server:%s\n",kcpbuf);
+            ZeroMemory(kcpbuf,BUF_SIZE);
         }
+        ZeroMemory(buf,BUF_SIZE);
+        ZeroMemory(recvbuf,BUF_SIZE);
+
     }
     closesocket(s);
     WSACleanup();

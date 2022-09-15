@@ -154,7 +154,7 @@ int main(void) {
 #include "ikcp.h"
 
 #pragma comment(lib,"WS2_32.lib")
-#define BUF_SIZE    6000
+#define BUF_SIZE   1024*500
 
 SOCKET      socketSrv ;
 SOCKADDR_IN addrSrv;
@@ -226,7 +226,7 @@ int main(void)
     ikcpcb *kcp = ikcp_create(1, (void*)&addrClient);
     kcp->output = udp_output;
     ikcp_nodelay(kcp, 1, 10, 2, 1);
-    ikcp_wndsize(kcp, 1024, 1024);
+    ikcp_wndsize(kcp, 2048, 2048);
     kcp->rx_minrto = 10;
 
     while(1)
@@ -251,6 +251,7 @@ int main(void)
             ikcp_send(kcp, buf, strlen(buf)+1);
             ikcp_update(kcp, clock());
         }
+        ZeroMemory(buf,BUF_SIZE);
     }
     closesocket(s);
     WSACleanup();
